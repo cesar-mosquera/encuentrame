@@ -1,0 +1,6 @@
+{
+  "appId": "com.gps.tracker",
+  "appName": "GPS Tracker",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}

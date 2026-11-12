@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paleta de colores del tema GPS Tracker (Dark Command Center) -->
+    <!-- Estos colores son referenciados por styles.xml; sin este archivo el build nativo falla. -->
+
+    <!-- Cian principal (acento neón, botones primarios, selección) -->
+    <color name="colorPrimary">#0B0F19</color>
+
+    <!-- Versión oscura del primary (status bar en modo claro) -->
+    <color name="colorPrimaryDark">#050811</color>
+
+    <!-- Acento esmeralda (estado online, batería alta) -->
+    <color name="colorAccent">#10B981</color>
+</resources>

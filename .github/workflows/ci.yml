@@ -1,0 +1,57 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: gps-dashboard/package-lock.json
+          
+      - name: Install dependencies
+        working-directory: gps-dashboard
+        run: npm ci
+        
+      - name: Run Linter
+        working-directory: gps-dashboard
+        run: npm run lint
+        
+      - name: Run Build
+        working-directory: gps-dashboard
+        run: npm run build
+        
+      - name: Run Tests
+        working-directory: gps-dashboard
+        run: npm test
+
+      - name: Verify Supabase Deployment
+        working-directory: gps-dashboard
+        run: npm run verify:supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Verify Android Build
+        working-directory: gps-dashboard/android
+        run: ./gradlew :app:compileDebugJavaWithJavac
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}

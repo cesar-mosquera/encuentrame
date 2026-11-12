@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.gps.tracker",
+      "sha256_cert_fingerprints": [
+        "0F:53:7E:A5:7E:FE:1D:1A:41:56:FE:E5:1A:09:19:F3:C3:3C:A5:EF:57:34:2C:CC:2D:CE:FE:DF:43:A8:F8:04"
+      ]
+    }
+  }
+]

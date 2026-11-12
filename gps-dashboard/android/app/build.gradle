@@ -1,0 +1,222 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace = "com.gps.tracker"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.gps.tracker"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 3
+        versionName "1.1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    def releaseStoreFile = findProperty('GPS_RELEASE_STORE_FILE') ?: System.getenv('GPS_RELEASE_STORE_FILE')
+    def releaseStorePassword = findProperty('GPS_RELEASE_STORE_PASSWORD') ?: System.getenv('GPS_RELEASE_STORE_PASSWORD')
+    def releaseKeyAlias = findProperty('GPS_RELEASE_KEY_ALIAS') ?: System.getenv('GPS_RELEASE_KEY_ALIAS')
+    def releaseKeyPassword = findProperty('GPS_RELEASE_KEY_PASSWORD') ?: System.getenv('GPS_RELEASE_KEY_PASSWORD')
+
+    signingConfigs {
+        release {
+            if (releaseStoreFile && releaseStorePassword && releaseKeyAlias && releaseKeyPassword) {
+                storeFile file(releaseStoreFile)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+                enableV1Signing false
+                enableV2Signing true
+                enableV3Signing true
+                enableV4Signing true
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (releaseStoreFile && releaseStorePassword && releaseKeyAlias && releaseKeyPassword) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+}
+
+// Conjunto de nombres de task que realmente producen APK / AAB firmado.
+// Las comparaciones son exactas para no capturar tasks auxiliares como
+// packageReleaseResources, compileReleaseSources, testReleaseUnitTest, etc.
+def SIGNING_TASKS = [
+    'assemblerelease',
+    'bundlerelease',
+    'packagerelease',
+    'signrelease',
+    'signreleasebundle',
+    'publishrelease',
+] as Set
+
+def isSigningTask = { String taskName ->
+    def n = taskName.toLowerCase()
+    // Tareas con nombre fijo
+    if (SIGNING_TASKS.contains(n)) return true
+    // Crashlytics varía según el flavor, p.ej. uploadCrashlyticsMappingFileRelease
+    if (n.startsWith('uploadcrashlytics') && n.endsWith('release')) return true
+    return false
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+    boolean isReleaseBuild = taskGraph.allTasks.any { isSigningTask(it.name) }
+    if (isReleaseBuild) {
+        def storeFile = findProperty('GPS_RELEASE_STORE_FILE') ?: System.getenv('GPS_RELEASE_STORE_FILE')
+        def storePassword = findProperty('GPS_RELEASE_STORE_PASSWORD') ?: System.getenv('GPS_RELEASE_STORE_PASSWORD')
+        def keyAlias = findProperty('GPS_RELEASE_KEY_ALIAS') ?: System.getenv('GPS_RELEASE_KEY_ALIAS')
+        def keyPassword = findProperty('GPS_RELEASE_KEY_PASSWORD') ?: System.getenv('GPS_RELEASE_KEY_PASSWORD')
+        if (!storeFile || !storePassword || !keyAlias || !keyPassword) {
+            throw new GradleException("ERROR CRÍTICO DE FIRMA: Para generar la versión de producción (release) debes definir las variables GPS_RELEASE_STORE_FILE, GPS_RELEASE_STORE_PASSWORD, GPS_RELEASE_KEY_ALIAS y GPS_RELEASE_KEY_PASSWORD.")
+        }
+    }
+}
+
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+    implementation "com.google.android.gms:play-services-location:$playServicesLocationVersion"
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}
+
+// Genera res/values/supabase_config.xml, la UNICA fuente de supabase_url y
+// supabase_publishable_key. Declararlas tambien en strings.xml hacia fallar
+// mergeResources con "Duplicate resources", dejando el proyecto sin APK posible.
+task ensureSupabaseConfig {
+    inputs.property('url', providers.provider {
+        System.getenv('SUPABASE_URL') ?: findProperty('SUPABASE_URL') ?: ''
+    })
+    inputs.property('key', providers.provider {
+        System.getenv('SUPABASE_ANON_KEY') ?: System.getenv('SUPABASE_PUBLISHABLE_KEY') ?: findProperty('SUPABASE_ANON_KEY') ?: ''
+    })
+    inputs.property('provisioningCode', providers.provider {
+        System.getenv('GPS_PROVISIONING_CODE') ?: findProperty('GPS_PROVISIONING_CODE') ?: ''
+    })
+    outputs.file('src/main/res/values/supabase_config.xml')
+
+    doLast {
+        boolean isReleaseBuild = gradle.taskGraph.allTasks.any { isSigningTask(it.name) }
+        // local.properties es la maquina local (esta en .gitignore) y tiene prioridad
+        // menor que el entorno: permite `assembleDebug` sin exportar variables.
+        def localProps = new Properties()
+        def localFile = rootProject.file('local.properties')
+        if (localFile.exists()) {
+            localFile.withInputStream { localProps.load(it) }
+        }
+        def pick = { List<String> names ->
+            for (name in names) {
+                def v = System.getenv(name) ?: findProperty(name) ?: localProps.getProperty(name)
+                if (v) {
+                    return v.trim()
+                }
+            }
+            return null
+        }
+        def envUrl = pick(['SUPABASE_URL'])
+        def envKey = pick(['SUPABASE_ANON_KEY', 'SUPABASE_PUBLISHABLE_KEY'])
+        def envProvisionCode = pick(['GPS_PROVISIONING_CODE'])
+
+        // Release exige credenciales explicitas: nunca se arrastra un archivo local.
+        if (isReleaseBuild && (!envUrl || !envKey)) {
+            throw new GradleException("ERROR CRÍTICO DE CONFIGURACIÓN RELEASE: Para generar un APK de producción (release) debes definir explícitamente las variables de entorno SUPABASE_URL y SUPABASE_ANON_KEY (o SUPABASE_PUBLISHABLE_KEY).")
+        }
+
+        // Validacion temprana: una URL o clave mal copiada se manifiesto como
+        // pantalla en blanco en el APK, no como fallo de compilacion.
+        if (envUrl && !envUrl.startsWith('https://')) {
+            throw new GradleException("ERROR DE CONFIGURACIÓN: SUPABASE_URL debe empezar por https:// (valor recibido: ${envUrl})")
+        }
+        if (envUrl && envUrl.length() > 200) {
+            throw new GradleException("ERROR DE CONFIGURACIÓN: SUPABASE_URL tiene una longitud sospechosa (${envUrl.length} caracteres).")
+        }
+
+        def configFile = file('src/main/res/values/supabase_config.xml')
+        def mustGenerate = isReleaseBuild || envUrl || envKey
+        if (!mustGenerate && configFile.exists()) {
+            println("Usando supabase_config.xml existente (sin variables de entorno).")
+            return
+        }
+        if (!envUrl || !envKey) {
+            throw new GradleException("ERROR DE CONFIGURACIÓN: supabase_config.xml no existe y SUPABASE_URL / SUPABASE_ANON_KEY no están definidas. No se generará configuración con valores por defecto.\n" +
+                "Soluciones: exporta SUPABASE_URL y SUPABASE_ANON_KEY, o añádelas a android/local.properties.")
+        }
+
+        def xmlEscape = { String value ->
+            value.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
+        }
+        def provisionLine = envProvisionCode
+            ? "    <string name=\"provisioning_code\" translatable=\"false\">${xmlEscape(envProvisionCode)}</string>\n"
+            : "    <string name=\"provisioning_code\" translatable=\"false\"></string>\n"
+        configFile.parentFile.mkdirs()
+        configFile.text = """<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="supabase_url" translatable="false">${xmlEscape(envUrl)}</string>
+    <string name="supabase_publishable_key" translatable="false">${xmlEscape(envKey)}</string>
+${provisionLine}</resources>"""
+        println("Generado supabase_config.xml desde variables de entorno (release=${isReleaseBuild}).")
+    }
+}
+preBuild.dependsOn ensureSupabaseConfig
+
+// Guarda contra la regresión que rompia todos los builds: si alguien vuelve a
+// declarar las claves de Supabase en otro XML, el merge falla tarde y sin contexto.
+tasks.register('verifyNoDuplicateSupabaseResources') {
+    dependsOn ensureSupabaseConfig
+    def valuesDir = file('src/main/res/values')
+    inputs.dir(valuesDir).withPathSensitivity(PathSensitivity.RELATIVE)
+    doLast {
+        def owners = [:]
+        valuesDir.listFiles()?.each { f ->
+            if (!f.name.endsWith('.xml')) {
+                return
+            }
+            def text = f.getText('UTF-8')
+            ['supabase_url', 'supabase_publishable_key'].each { name ->
+                if (text.contains("name=\"${name}\"")) {
+                    owners[name] = (owners[name] ?: []) + f.name
+                }
+            }
+        }
+        owners.each { name, files ->
+            if (files.size() > 1) {
+                throw new GradleException("Recurso duplicado '${name}' declarado en: ${files.join(', ')}. Debe declararse en un unico archivo XML.")
+            }
+            if (files.isEmpty()) {
+                throw new GradleException("Falta el recurso '${name}'. ensureSupabaseConfig debe generarlo.")
+            }
+        }
+    }
+}
+preBuild.dependsOn verifyNoDuplicateSupabaseResources

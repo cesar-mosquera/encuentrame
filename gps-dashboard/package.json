@@ -1,0 +1,49 @@
+{
+  "name": "gps-dashboard",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "oxlint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "compile:android": "cd android && ./gradlew :app:compileDebugJavaWithJavac",
+    "verify:supabase": "node scripts/verify_supabase_deployment.js",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@capacitor-community/background-geolocation": "^1.2.26",
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@sentry/capacitor": "^4.4.0",
+    "@sentry/react": "^10.69.0",
+    "@supabase/supabase-js": "^2.116.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^1.43.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-leaflet": "^5.0.0"
+  },
+  "devDependencies": {
+    "@sentry/vite-plugin": "^11.9.0",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.1.0",
+    "@vitest/coverage-v8": "^5.0.2",
+    "autoprefixer": "^10.5.5",
+    "jsdom": "^29.1.1",
+    "oxlint": "^1.79.0",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.2.2",
+    "vitest": "^5.0.1"
+  }
+}

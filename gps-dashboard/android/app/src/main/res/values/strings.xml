@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GPS Tracker V2</string>
+    <string name="title_activity_main">GPS Tracker V2</string>
+    <string name="package_name">com.gps.tracker</string>
+    <string name="custom_url_scheme">com.gps.tracker</string>
+    <!-- supabase_url y supabase_publishable_key NO viven aqui.
+         Las genera la tarea `ensureSupabaseConfig` de app/build.gradle en
+         res/values/supabase_config.xml a partir de SUPABASE_URL y
+         SUPABASE_ANON_KEY / SUPABASE_PUBLISHABLE_KEY. Declararlas aqui tambien
+         provocaba "Duplicate resources" en mergeResources y rompia el APK. -->
+    <!-- El secreto de aprovisionamiento jamas va en el APK: la autorizacion la
+         hace organizations.activation_code validado en la Edge Function. -->
+</resources>

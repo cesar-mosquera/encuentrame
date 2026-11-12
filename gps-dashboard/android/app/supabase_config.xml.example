@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Plantilla de ejemplo. gradle ensureSupabaseConfig generará el archivo real src/main/res/values/supabase_config.xml a partir de variables de entorno en tiempo de compilación si no existe -->
+    <string name="supabase_url" translatable="false">https://your-project.supabase.co</string>
+    <string name="supabase_publishable_key" translatable="false">your-publishable-key</string>
+</resources>
