@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "buildCommand": "cd gps-dashboard && npm run build",
-  "outputDirectory": "gps-dashboard/dist",
-  "installCommand": "cd gps-dashboard && npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm ci",
   "framework": "vite",
-  "devCommand": "cd gps-dashboard && npm run dev",
+  "devCommand": "npm run dev",
   "headers": [
     {
       "source": "/(.*)",
