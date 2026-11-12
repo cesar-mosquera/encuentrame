@@ -13,6 +13,8 @@ Panel web y aplicación Android para monitorear dispositivos GPS en tiempo real.
 - Aplicación Android con envío GPS cada 30 segundos.
 - Tests unitarios y build de producción con Vite.
 
+## supabase contra
+JulioCesarMosquera
 
 ## Estructura
 
