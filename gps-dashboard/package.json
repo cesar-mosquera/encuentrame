@@ -20,7 +20,7 @@
     "@capacitor/cli": "^8.5.2",
     "@capacitor/core": "^8.5.2",
     "@sentry/capacitor": "^4.4.0",
-    "@sentry/react": "^10.69.0",
+    "@sentry/react": "10.69.0",
     "@supabase/supabase-js": "^2.116.0",
     "@tailwindcss/postcss": "^4.3.3",
     "leaflet": "^1.9.4",
