@@ -17,7 +17,7 @@ const FleetPanel = ({ entities, selectedId, onSelectEntity, onDeleteEntity, onRe
   const activeAlerts = (alerts || []).filter((a) => a.status !== 'resolved')
 
   return (
-    <div className="flex w-full max-w-[304px] flex-col rounded-2xl border border-cyan-500/20 bg-slate-900/60 p-4 shadow-[0_0_25px_rgba(6,182,212,0.12)] backdrop-blur-md">
+    <div className="flex w-full max-w-full flex-col rounded-2xl border border-cyan-500/20 bg-slate-900/90 p-4 shadow-[0_0_25px_rgba(6,182,212,0.12)] backdrop-blur-md xl:max-w-[304px]">
       {/* Ubicación del operador */}
       <div className="flex items-center justify-between gap-2 rounded-xl border border-cyan-500/15 bg-[#0a1220]/70 p-3">
         <div className="flex min-w-0 items-center gap-2.5">

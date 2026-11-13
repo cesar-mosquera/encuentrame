@@ -165,6 +165,23 @@
 
 /* El mapa base usa sus colores originales (estilo claro) para máxima claridad y lectura de las calles. */
 
+@media (max-width: 640px) {
+  /* Menos capas decorativas sobre el mapa = arrastre más fluido en móvil */
+  .cmd-grid {
+    display: none;
+  }
+
+  .cmd-bottom-bar {
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+  }
+
+  /* La escala chocaría con la barra inferior en pantallas pequeñas */
+  .leaflet-control-scale {
+    display: none;
+  }
+}
+
 /* Al arrastrar o hacer zoom, desactivar el blur de los paneles flotantes:
    el backdrop-filter recalcula el fondo en cada frame y provoca tirones. */
 body:has(.leaflet-dragging) [class*='backdrop-blur'],

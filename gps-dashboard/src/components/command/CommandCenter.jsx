@@ -275,7 +275,6 @@ const CommandCenter = () => {
           routeFocusTrigger={routeFocusTrigger}
           baseLayer={baseLayer}
           onBaseLayerChange={setBaseLayer}
-          hideControls
           hideSelectionBar
         />
         </React.Suspense>
@@ -348,8 +347,8 @@ const CommandCenter = () => {
       {/* Panel derecho - Flota (condicional render) */}
       {(isDesktop || fleetOpen) && (
         <div className={`pointer-events-none absolute ${isDesktop ? 'right-4 top-[150px] bottom-36 hidden lg:block' : 'inset-0 z-50 lg:hidden'} z-20`}>
-          {!isDesktop && <button type="button" className="pointer-events-auto absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setFleetOpen(false)} />}
-          <div className={`pointer-events-auto max-h-full overflow-y-auto cmd-scroll ${!isDesktop ? 'absolute right-0 top-0 h-full max-h-[88vh] p-3' : ''}`}>
+          {!isDesktop && <button type="button" className="pointer-events-auto absolute inset-0 bg-black/60" aria-label="Cerrar panel de flota" onClick={() => setFleetOpen(false)} />}
+          <div className={`pointer-events-auto cmd-scroll ${!isDesktop ? 'absolute inset-x-0 bottom-0 max-h-[82dvh] overflow-y-auto p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]' : 'max-h-full overflow-y-auto'}`}>
             <FleetPanel
               entities={combined}
               selectedId={active?.id}

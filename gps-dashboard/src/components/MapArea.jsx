@@ -255,7 +255,7 @@ const MapArea = ({
 
       {/* Modern UI Overlays */}
       <div className="absolute inset-0 pointer-events-none z-10 p-4">
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 pointer-events-auto">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-2 pointer-events-auto sm:right-4 sm:gap-3">
           {!hideControls && (
             <>
               <div className="bg-[#0b1221]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden">

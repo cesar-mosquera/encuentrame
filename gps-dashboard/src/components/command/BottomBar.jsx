@@ -28,7 +28,10 @@ const BottomBar = ({ entity, onToggleRouteFollow, isFollowingRoute, baseLayer, o
   const signal = signalFor(entity)
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-4 z-40 flex flex-col items-center gap-3 px-3">
+    <div
+      className="cmd-bottom-bar pointer-events-none absolute inset-x-0 z-40 flex flex-col items-center gap-2 px-2 sm:gap-3 sm:px-3"
+      style={{ bottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+    >
       {/* Capas */}
       <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-cyan-500/20 bg-slate-900/70 px-1.5 py-1 shadow-[0_0_18px_rgba(6,182,212,0.15)] backdrop-blur-md">
         {LAYERS.map((layer) => {
@@ -54,7 +57,7 @@ const BottomBar = ({ entity, onToggleRouteFollow, isFollowingRoute, baseLayer, o
       </div>
 
       {/* Barra principal */}
-      <div className="pointer-events-auto flex w-full max-w-3xl items-center gap-3 overflow-x-auto rounded-2xl border border-cyan-500/40 bg-slate-900/70 px-4 py-3 shadow-[0_0_30px_rgba(6,182,212,0.2)] backdrop-blur-md cmd-scroll">
+      <div className="pointer-events-auto flex w-full max-w-3xl items-center gap-2 overflow-x-auto rounded-xl border border-cyan-500/40 bg-slate-900/80 px-3 py-2.5 shadow-[0_0_30px_rgba(6,182,212,0.2)] backdrop-blur-md cmd-scroll sm:gap-3 sm:rounded-2xl sm:px-4 sm:py-3">
         <MetricCell
           icon={<Gauge size={13} />}
           label="Precisión"
@@ -118,7 +121,7 @@ const BottomBar = ({ entity, onToggleRouteFollow, isFollowingRoute, baseLayer, o
           type="button"
           onClick={() => onToggleRouteFollow?.()}
           disabled={!entity?.position}
-          className={`group flex shrink-0 items-center gap-2 rounded-xl px-4 py-3 text-[11px] font-extrabold uppercase tracking-wider transition-all sm:px-5 ${
+          className={`group flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2.5 text-[10px] font-extrabold uppercase tracking-wider transition-all sm:gap-2 sm:rounded-xl sm:px-5 sm:py-3 sm:text-[11px] ${
             isFollowingRoute
               ? 'bg-[#22d3ee] text-[#0b0f19] shadow-[0_0_30px_rgba(34,211,238,0.6)]'
               : 'bg-[#06b6d4] text-[#0b0f19] shadow-[0_0_25px_rgba(6,182,212,0.4)] hover:bg-[#22d3ee] hover:shadow-[0_0_35px_rgba(6,182,212,0.65)]'
