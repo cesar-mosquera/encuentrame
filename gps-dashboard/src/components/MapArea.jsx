@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
-import { MapContainer, TileLayer, Circle, Marker, Popup } from 'react-leaflet';
+import React, { useEffect, useRef, useState } from 'react';
+import { MapContainer, TileLayer, Circle, Marker, Popup, ScaleControl } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Plus, Minus, Crosshair, Navigation, Share2, Maximize, Layers } from 'lucide-react';
+import { Plus, Minus, Crosshair, Navigation, Share2, Maximize, Minimize2, Maximize2, Layers } from 'lucide-react';
 import { routeColorForSpeed, routeAhead, projectedPath } from '../lib/mapLogic';
 import { sanitizeRoute } from '../lib/queries';
 import { formatNavDistance, formatNavDuration } from '../lib/routing';
@@ -42,10 +42,38 @@ const MapArea = ({
   routeFocusTrigger = null,
 }) => {
   const mapRef = useRef(null);
+  const containerRef = useRef(null);
   const alertMarkerRefs = useRef({});
   const [internalBaseLayer, setInternalBaseLayer] = useState('streets');
   const [navState, setNavState] = useState({ navRoute: [], navMeta: null, navError: false });
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const baseLayer = baseLayerProp ?? internalBaseLayer;
+
+  useEffect(() => {
+    const onFullscreenChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+  }, []);
+
+  // Leaflet necesita recalcular su tamaño al entrar/salir de pantalla completa.
+  useEffect(() => {
+    const timer = setTimeout(() => mapRef.current?.invalidateSize(), 150);
+    return () => clearTimeout(timer);
+  }, [isFullscreen]);
+
+  const toggleFullscreen = async () => {
+    const el = containerRef.current;
+    if (!el) return;
+    try {
+      if (!document.fullscreenElement) {
+        await (el.requestFullscreen?.() ?? el.webkitRequestFullscreen?.());
+      } else {
+        await (document.exitFullscreen?.() ?? document.webkitExitFullscreen?.());
+      }
+    } catch (err) {
+      console.warn('No se pudo cambiar a pantalla completa:', err);
+    }
+  };
   
   const changeBaseLayer = (next) => {
     setInternalBaseLayer(next);
@@ -88,12 +116,13 @@ const MapArea = ({
     : [];
 
   return (
-    <div className="relative h-full min-h-0 min-w-0 w-full overflow-hidden rounded-[10px] bg-[#e8ecef] select-none">
+    <div ref={containerRef} className="relative h-full min-h-0 min-w-0 w-full overflow-hidden rounded-[10px] bg-[#e8ecef] select-none">
       <MapContainer 
         ref={mapRef}
         center={currentPinPosition} 
         zoom={15} 
         zoomControl={false}
+        preferCanvas
         zoomAnimation
         zoomAnimationThreshold={8}
         wheelPxPerZoomLevel={120}
@@ -128,6 +157,8 @@ const MapArea = ({
           zoomAnimation={true}
           fadeAnimation={true}
         />
+
+        <ScaleControl position="bottomleft" imperial={false} />
 
         <MapClickHandler isPlacingOnMap={isPlacingOnMap} onMapClick={onMapClick} onMapHover={onMapHover} />
 
@@ -224,32 +255,45 @@ const MapArea = ({
 
       {/* Modern UI Overlays */}
       <div className="absolute inset-0 pointer-events-none z-10 p-4">
-        {!hideControls && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-4 pointer-events-auto">
-            <div className="bg-[#0b1221]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden">
-              <button
-                onClick={handleZoomIn}
-                aria-label="Acercar mapa"
-                className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-white hover:bg-white/10 transition-colors border-b border-white/10 active:bg-white/20"
-              >
-                <Plus size={24} />
-              </button>
-              <button
-                onClick={handleZoomOut}
-                aria-label="Alejar mapa"
-                className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-white hover:bg-white/10 transition-colors active:bg-white/20"
-              >
-                <Minus size={24} />
-              </button>
-            </div>
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 pointer-events-auto">
+          {!hideControls && (
+            <>
+              <div className="bg-[#0b1221]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden">
+                <button
+                  onClick={handleZoomIn}
+                  aria-label="Acercar mapa"
+                  className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-white hover:bg-white/10 transition-colors border-b border-white/10 active:bg-white/20"
+                >
+                  <Plus size={24} />
+                </button>
+                <button
+                  onClick={handleZoomOut}
+                  aria-label="Alejar mapa"
+                  className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-white hover:bg-white/10 transition-colors active:bg-white/20"
+                >
+                  <Minus size={24} />
+                </button>
+              </div>
 
-            <div className="bg-[#0b1221]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden">
-              <button onClick={handleRecenter} title="Centrar vehículo activo" className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-cyan-400 hover:bg-white/10 transition-colors border-b border-white/10 active:bg-white/20"><Crosshair size={20} /></button>
-              <button onClick={handleFitFleet} title="Ver toda la flota" className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-cyan-400 hover:bg-white/10 transition-colors border-b border-white/10 active:bg-white/20"><Maximize size={20} /></button>
-              <button onClick={() => changeBaseLayer(baseLayer === 'satellite' ? 'streets' : 'satellite')} title="Cambiar capa del mapa" className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-cyan-400 hover:bg-white/10 transition-colors active:bg-white/20"><Layers size={20} /></button>
-            </div>
+              <div className="bg-[#0b1221]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden">
+                <button onClick={handleRecenter} title="Centrar vehículo activo" className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-cyan-400 hover:bg-white/10 transition-colors border-b border-white/10 active:bg-white/20"><Crosshair size={20} /></button>
+                <button onClick={handleFitFleet} title="Ver toda la flota" className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-cyan-400 hover:bg-white/10 transition-colors border-b border-white/10 active:bg-white/20"><Maximize size={20} /></button>
+                <button onClick={() => changeBaseLayer(baseLayer === 'satellite' ? 'streets' : 'satellite')} title="Cambiar capa del mapa" className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-cyan-400 hover:bg-white/10 transition-colors active:bg-white/20"><Layers size={20} /></button>
+              </div>
+            </>
+          )}
+
+          <div className="bg-[#0b1221]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden">
+            <button
+              onClick={toggleFullscreen}
+              title={isFullscreen ? 'Salir de pantalla completa' : 'Maximizar mapa'}
+              aria-label={isFullscreen ? 'Salir de pantalla completa' : 'Maximizar mapa'}
+              className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-cyan-400 hover:bg-white/10 transition-colors active:bg-white/20"
+            >
+              {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+            </button>
           </div>
-        )}
+        </div>
 
         {isFollowingRoute && (navState.navRoute.length >= 2 || navState.navError) && (
           <div className="absolute left-4 top-4 pointer-events-auto bg-[#0b1221]/95 backdrop-blur-xl rounded-2xl border border-cyan-500/40 shadow-[0_0_30px_rgba(34,211,238,0.15)] px-4 py-3 max-w-[280px]">

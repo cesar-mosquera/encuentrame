@@ -165,6 +165,27 @@
 
 /* El mapa base usa sus colores originales (estilo claro) para máxima claridad y lectura de las calles. */
 
+/* Al arrastrar o hacer zoom, desactivar el blur de los paneles flotantes:
+   el backdrop-filter recalcula el fondo en cada frame y provoca tirones. */
+body:has(.leaflet-dragging) [class*='backdrop-blur'],
+body:has(.leaflet-zoom-anim) [class*='backdrop-blur'] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Escala del mapa con estilo del panel */
+.cyber-tiles .leaflet-control-scale-line {
+  background: rgba(11, 18, 33, 0.78);
+  border-color: rgba(34, 211, 238, 0.55);
+  color: #22d3ee;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-shadow: none;
+}
+
 .header-status,
 .header-signal-actions {
   display: none;

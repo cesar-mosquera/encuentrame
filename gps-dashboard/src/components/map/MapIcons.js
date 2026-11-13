@@ -49,7 +49,6 @@ export const createHeroPinIcon = (name, id, baseLayer = 'streets') => {
         text-align: center;
         margin-bottom: 8px;
         white-space: nowrap;
-        backdrop-filter: blur(10px);
       ">
         <div style="font-size: 12px; font-weight: 800; color: #ffffff; line-height: 1.2; text-shadow: 0 0 10px ${glow},0.5);">${escapeHtml(name)}</div>
         <div style="font-size: 9px; color: #475569; font-family: monospace; letter-spacing: 0.5px;">ID: ${escapeHtml(id)}</div>
@@ -58,11 +57,11 @@ export const createHeroPinIcon = (name, id, baseLayer = 'streets') => {
         <div style="
           position: absolute; width: 52px; height: 52px; border-radius: 50%;
           background: radial-gradient(circle, ${glow}, 0.25) 0%, ${greenGlow}, 0.1) 70%, transparent 100%);
-          box-shadow: 0 0 25px ${greenGlow},0.4), 0 0 50px ${glow},0.2); animation: pulse 2s infinite;
+          box-shadow: 0 0 25px ${greenGlow},0.4), 0 0 50px ${glow},0.2);
         "></div>
         <div style="
           position: absolute; width: 44px; height: 44px; border-radius: 50%;
-          background: ${glow}, 0.15); box-shadow: 0 0 20px ${glow},0.3); animation: pulse 2s infinite 0.5s;
+          background: ${glow}, 0.15); box-shadow: 0 0 20px ${glow},0.3);
         "></div>
         <div style="
           width: 34px; height: 34px; background: linear-gradient(135deg, ${primary} 0%, ${secondary} 50%, ${tertiary} 100%);
@@ -110,7 +109,7 @@ export const createFleetPinIcon = (status, baseLayer = 'streets') => {
         <div style="
           position: absolute; width: 32px; height: 32px; border-radius: 50%;
           background: radial-gradient(circle, ${glowColor} 0%, transparent 70%);
-          box-shadow: 0 0 15px ${glowColor}; animation: pulse 3s infinite;
+          box-shadow: 0 0 15px ${glowColor};
         "></div>
         <div style="position: absolute; width: 28px; height: 28px; border-radius: 50%; background: ${color}25; border: 1px solid ${color}70;"></div>
         <div style="
@@ -169,7 +168,7 @@ export const createZoneLabel = (name, rawColor = '#00E676') => {
       <div style="
         background: linear-gradient(135deg, rgba(16, 23, 38, 0.95) 0%, rgba(10, 15, 26, 0.9) 100%);
         border: 1px dashed ${color}; color: ${color}; padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 700;
-        white-space: nowrap; box-shadow: 0 0 15px ${color}40, 0 0 30px ${color}20; backdrop-filter: blur(8px); letter-spacing: 0.5px;
+        white-space: nowrap; box-shadow: 0 0 15px ${color}40, 0 0 30px ${color}20; letter-spacing: 0.5px;
       ">
         ${escapeHtml(name)}
       </div>
@@ -188,7 +187,7 @@ export const createAlertIncidentIcon = (severity) => {
       <div style="position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
         <div style="
           position: absolute; width: 34px; height: 34px; border-radius: 50%;
-          background: ${color}35; box-shadow: 0 0 16px ${color}; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+          background: ${color}35; box-shadow: 0 0 16px ${color};
         "></div>
         <div style="
           width: 24px; height: 24px; border-radius: 50%; background: #0D1424; border: 2px solid ${color};
