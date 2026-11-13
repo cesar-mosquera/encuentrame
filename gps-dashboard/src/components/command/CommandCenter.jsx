@@ -241,7 +241,11 @@ const CommandCenter = () => {
     <div className="reference-dashboard cmd-center relative h-full w-full overflow-hidden bg-[#0b0f19] text-slate-100">
       {/* Mapa de fondo a pantalla completa */}
       <div className="absolute inset-0 z-0">
-        <React.Suspense fallback={<div className="w-full h-full bg-[#0b0f19]" />}>
+        <React.Suspense fallback={
+          <div className="flex h-full w-full items-center justify-center bg-[#e8ecef]">
+            <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-cyan-500/20 border-t-cyan-500" />
+          </div>
+        }>
         <MapArea
           category={category}
           vehicles={mapEntities}

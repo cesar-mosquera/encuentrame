@@ -8,8 +8,6 @@
  *   - device_id  → SÍ se envía (identifica el dispositivo, no al usuario).
  *   - access_token, refresh_token → NUNCA se envían.
  */
-import * as SentryCapacitor from '@sentry/capacitor';
-import * as Sentry from '@sentry/react';
 import { Capacitor } from '@capacitor/core';
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
@@ -18,55 +16,77 @@ const IS_DEV = import.meta.env.DEV;
 /** true cuando Sentry está realmente inicializado (DSN válido + producción). */
 let _initialized = false;
 
+// El SDK de Sentry se carga de forma diferida: sin DSN no se descarga nada y
+// el bundle inicial queda más pequeño. Los helpers funcionan como no-op hasta
+// que termina la carga.
+let Sentry = null;
+let SentryCapacitor = null;
+let _loadingPromise = null;
+
 /**
  * Inicializa Sentry. Llamar UNA vez en main.jsx, antes de createRoot.
  * En desarrollo (DEV=true) no envía eventos a menos que VITE_SENTRY_DSN esté
  * explícitamente configurado (útil para probar la integración en local).
+ * @returns {Promise<void>|undefined}
  */
 export function initSentry() {
-  if (_initialized) return;
+  if (_initialized || _loadingPromise) return _loadingPromise;
   if (!SENTRY_DSN) {
     if (!IS_DEV) {
       console.warn('[Sentry] VITE_SENTRY_DSN no configurado. Los errores no se reportarán.');
     }
-    return;
+    return undefined;
   }
 
-  SentryCapacitor.init({
-    dsn: SENTRY_DSN,
-    environment: IS_DEV ? 'development' : 'production',
-    // En desarrollo capturar todo; en producción solo errores (sin breadcrumbs de debug).
-    tracesSampleRate: IS_DEV ? 1.0 : 0.2,
-    // No enviar eventos puramente de desarrollo.
-    enabled: !IS_DEV || Boolean(SENTRY_DSN),
-    enableNative: true,
-    enableNativeNagger: false,
+  _loadingPromise = Promise.all([
+    import('@sentry/capacitor'),
+    import('@sentry/react'),
+  ])
+    .then(([capacitorSdk, reactSdk]) => {
+      SentryCapacitor = capacitorSdk;
+      Sentry = reactSdk;
 
-    integrations: [
-      Sentry.browserTracingIntegration(),
-      // Captura errores no manejados de promesas.
-      Sentry.globalHandlersIntegration({ onerror: true, onunhandledrejection: true }),
-    ],
+      SentryCapacitor.init({
+        dsn: SENTRY_DSN,
+        environment: IS_DEV ? 'development' : 'production',
+        // En desarrollo capturar todo; en producción solo errores (sin breadcrumbs de debug).
+        tracesSampleRate: IS_DEV ? 1.0 : 0.2,
+        // No enviar eventos puramente de desarrollo.
+        enabled: !IS_DEV || Boolean(SENTRY_DSN),
+        enableNative: true,
+        enableNativeNagger: false,
 
-    beforeSend(event) {
-      // Limpiar PII: eliminar tokens de cualquier campo de datos extra.
-      scrubPII(event);
-      return event;
-    },
+        integrations: [
+          Sentry.browserTracingIntegration(),
+          // Captura errores no manejados de promesas.
+          Sentry.globalHandlersIntegration({ onerror: true, onunhandledrejection: true }),
+        ],
 
-    beforeBreadcrumb(breadcrumb) {
-      // Filtrar breadcrumbs de XHR/fetch a Sentry mismo para evitar recursión.
-      if (breadcrumb.category === 'xhr' || breadcrumb.category === 'fetch') {
-        if (breadcrumb.data?.url?.includes('sentry.io')) return null;
-      }
-      return breadcrumb;
-    },
-  }, Sentry.init);
+        beforeSend(event) {
+          // Limpiar PII: eliminar tokens de cualquier campo de datos extra.
+          scrubPII(event);
+          return event;
+        },
 
-  // Contexto global: plataforma (web/android/ios).
-  Sentry.setTag('platform', Capacitor.isNativePlatform() ? Capacitor.getPlatform() : 'web');
+        beforeBreadcrumb(breadcrumb) {
+          // Filtrar breadcrumbs de XHR/fetch a Sentry mismo para evitar recursión.
+          if (breadcrumb.category === 'xhr' || breadcrumb.category === 'fetch') {
+            if (breadcrumb.data?.url?.includes('sentry.io')) return null;
+          }
+          return breadcrumb;
+        },
+      }, Sentry.init);
 
-  _initialized = true;
+      // Contexto global: plataforma (web/android/ios).
+      Sentry.setTag('platform', Capacitor.isNativePlatform() ? Capacitor.getPlatform() : 'web');
+
+      _initialized = true;
+    })
+    .catch((err) => {
+      console.warn('[Sentry] No se pudo cargar el SDK:', err);
+    });
+
+  return _loadingPromise;
 }
 
 // ─── Helpers públicos ────────────────────────────────────────────────────────
@@ -75,7 +95,7 @@ export function initSentry() {
  * Asocia el device_id al usuario de Sentry para filtrar eventos por dispositivo.
  */
 export function setDeviceUser(deviceId) {
-  if (!_initialized || !deviceId) return;
+  if (!_initialized || !Sentry || !deviceId) return;
   Sentry.setUser({ id: deviceId });
 }
 
@@ -85,7 +105,7 @@ export function setDeviceUser(deviceId) {
  * @param {Object} [context]  — pares clave-valor que se adjuntan al evento.
  */
 export function captureException(error, context) {
-  if (!_initialized) {
+  if (!_initialized || !Sentry) {
     console.error('[Sentry:offline]', error, context);
     return;
   }
@@ -96,7 +116,7 @@ export function captureException(error, context) {
  * Captura un mensaje informativo o de advertencia.
  */
 export function captureMessage(message, level = 'info') {
-  if (!_initialized) {
+  if (!_initialized || !Sentry) {
     console.log(`[Sentry:offline:${level}]`, message);
     return;
   }
@@ -108,7 +128,7 @@ export function captureMessage(message, level = 'info') {
  * Útil para reconstruir la secuencia de acciones antes de un crash.
  */
 export function addBreadcrumb(crumb) {
-  if (!_initialized) return;
+  if (!_initialized || !Sentry) return;
   Sentry.addBreadcrumb(crumb);
 }
 
@@ -127,15 +147,6 @@ export function classifyError(error) {
   if (Number(status) >= 500) return 'server';
   return 'unknown';
 }
-
-// ─── Re-exportar ErrorBoundary de Sentry ─────────────────────────────────────
-
-/**
- * ErrorBoundary de Sentry que captura errores de renderizado de React.
- * Se usa como wrapper en App.jsx. Si Sentry no está inicializado, se
- * comporta como un ErrorBoundary básico.
- */
-export const SentryErrorBoundary = Sentry.ErrorBoundary;
 
 // ─── Internas ────────────────────────────────────────────────────────────────
 

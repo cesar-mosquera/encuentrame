@@ -4,16 +4,75 @@
     <meta charset="UTF-8" />
     <meta name="google" content="notranslate" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Conexiones tempranas: API, tiles y fuentes -->
+    <link rel="preconnect" href="https://bnzthtciyxsrpcfbhsxs.supabase.co" crossorigin />
+    <link rel="dns-prefetch" href="https://bnzthtciyxsrpcfbhsxs.supabase.co" />
+    <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin />
+    <link rel="dns-prefetch" href="https://server.arcgisonline.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://tile.openstreetmap.org" />
-    <link rel="dns-prefetch" href="https://tile.openstreetmap.org" />
+
+    <!-- Fuentes sin bloquear el primer render -->
     <link
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
-      rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+      />
+    </noscript>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RideGuard - GPS Dashboard</title>
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #0b0f19;
+      }
+      #splash {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        background: #0b0f19;
+        color: #b9f4f1;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif;
+      }
+      #splash .ring {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 3px solid rgba(34, 211, 238, 0.2);
+        border-top-color: #22d3ee;
+        animation: splash-spin 0.8s linear infinite;
+      }
+      #splash span {
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #64748b;
+      }
+      @keyframes splash-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
   <body>
     <script>
@@ -28,8 +87,12 @@
         };
       }
     </script>
-    <div id="root"></div>
+    <div id="root">
+      <div id="splash">
+        <div class="ring"></div>
+        <span>Cargando panel…</span>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
-

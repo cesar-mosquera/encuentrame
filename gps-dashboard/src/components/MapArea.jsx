@@ -94,6 +94,9 @@ const MapArea = ({
         center={currentPinPosition} 
         zoom={15} 
         zoomControl={false}
+        zoomAnimation
+        zoomAnimationThreshold={8}
+        wheelPxPerZoomLevel={120}
         className="w-full h-full z-0 cyber-tiles"
         style={{ height: '100%', width: '100%' }}
       >
