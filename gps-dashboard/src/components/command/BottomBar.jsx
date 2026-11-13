@@ -95,7 +95,7 @@ const BottomBar = ({ entity, onToggleRouteFollow, isFollowingRoute, baseLayer, o
 
         <Divider className="hidden md:block" />
 
-        <div className="flex min-w-0 max-w-[170px] flex-1 flex-col items-center px-1">
+        <div className="flex min-w-0 max-w-[150px] flex-1 flex-col items-center px-1 sm:max-w-[170px]">
           <span className="text-[9px] tracking-[0.2em] text-slate-500 uppercase">Dispositivo</span>
           <span className="w-full truncate text-center font-mono text-[13px] font-bold text-[#22d3ee]">
             {entity?.name || entity?.id || 'Sin selección'}
@@ -113,7 +113,7 @@ const BottomBar = ({ entity, onToggleRouteFollow, isFollowingRoute, baseLayer, o
             title="Ver ficha del dispositivo"
             aria-label="Abrir ficha del dispositivo"
           >
-            <FileText size={14} /> Ficha
+            <FileText size={14} /> <span className="hidden sm:inline">Ficha</span>
           </button>
         )}
 

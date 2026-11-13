@@ -19,6 +19,7 @@ const DetailPanel = ({
   historyRoute,
   historyLoading,
   onFocusRoute,
+  onClose,
 }) => {
   const liveSamples = useTelemetryStream(entity)
   const values = samples && samples.length ? samples : liveSamples
@@ -37,7 +38,7 @@ const DetailPanel = ({
   }, [confirmingDelete])
 
   return (
-    <div className="flex w-full max-w-[304px] flex-col rounded-2xl border border-cyan-500/20 bg-slate-900/60 p-4 shadow-[0_0_25px_rgba(6,182,212,0.12)] backdrop-blur-md">
+    <div className="cmd-scroll flex h-full w-full max-w-full flex-col overflow-y-auto rounded-2xl border border-cyan-500/20 bg-slate-900/90 p-4 shadow-[0_0_25px_rgba(6,182,212,0.12)] backdrop-blur-md xl:max-w-[304px]">
       {/* Header */}
       <div className="flex items-start justify-between gap-2 border-b border-cyan-500/10 pb-3">
         <div className="min-w-0">
@@ -47,16 +48,28 @@ const DetailPanel = ({
           </div>
           <div className="mt-0.5 truncate text-[10px] text-slate-500">{entity?.model || '—'}</div>
         </div>
-        <span
-          className="flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]"
-          style={{ color, borderColor: `${color}55`, backgroundColor: `${color}14` }}
-        >
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-60" style={{ backgroundColor: color }} />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
+        <div className="flex shrink-0 items-center gap-1.5">
+          <span
+            className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em]"
+            style={{ color, borderColor: `${color}55`, backgroundColor: `${color}14` }}
+          >
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-60" style={{ backgroundColor: color }} />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
+            </span>
+            {statusLabel(entity)}
           </span>
-          {statusLabel(entity)}
-        </span>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Cerrar ficha del dispositivo"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-cyan-500/25 bg-slate-900/80 text-[15px] leading-none text-cyan-300 transition-colors hover:bg-cyan-500/10"
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Grid de telemetría */}
@@ -101,16 +114,6 @@ const DetailPanel = ({
         </div>
       </div>
 
-      {/* Status Stream */}
-      <div className="mt-2">
-        <StatusStream samples={values} label="Status Stream · Velocidad" />
-      </div>
-
-      {/* Historial de ruta */}
-      <div className="mt-2">
-        <RouteHistoryCard route={historyRoute} loading={historyLoading} onFocusRoute={onFocusRoute} />
-      </div>
-
       {/* Acciones */}
       <div className="mt-3 grid grid-cols-2 gap-2">
         <button
@@ -136,6 +139,16 @@ const DetailPanel = ({
       </div>
 
 
+
+      {/* Status Stream */}
+      <div className="mt-2">
+        <StatusStream samples={values} label="Status Stream · Velocidad" />
+      </div>
+
+      {/* Historial de ruta */}
+      <div className="mt-2">
+        <RouteHistoryCard route={historyRoute} loading={historyLoading} onFocusRoute={onFocusRoute} />
+      </div>
 
       {/* Pie con ubicación */}
       <div className="mt-auto flex items-center gap-2 border-t border-cyan-500/10 pt-2.5">

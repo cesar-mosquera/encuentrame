@@ -71,6 +71,12 @@ const DashboardInner = () => {
     if (currentCategory === 'devices' && refetchDevices) refetchDevices();
   };
 
+  useEffect(() => {
+    if (!operationMessage) return undefined;
+    const timer = window.setTimeout(() => dispatch({ type: 'SET_OPERATION_MESSAGE', payload: '' }), 5000);
+    return () => window.clearTimeout(timer);
+  }, [operationMessage, dispatch]);
+
   const hasCenteredOnVehicle = useRef(false);
 
   useEffect(() => {

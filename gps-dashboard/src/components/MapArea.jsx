@@ -255,7 +255,7 @@ const MapArea = ({
 
       {/* Modern UI Overlays */}
       <div className="absolute inset-0 pointer-events-none z-10 p-4">
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-2 pointer-events-auto sm:right-4 sm:gap-3">
+        <div className={`pointer-events-auto absolute top-1/2 flex -translate-y-1/2 flex-col gap-2 sm:gap-3 ${isFullscreen ? 'right-4' : 'right-3 sm:right-4 xl:right-[340px]'}`}>
           {!hideControls && (
             <>
               <div className="bg-[#0b1221]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden">
@@ -296,7 +296,7 @@ const MapArea = ({
         </div>
 
         {isFollowingRoute && (navState.navRoute.length >= 2 || navState.navError) && (
-          <div className="absolute left-4 top-4 pointer-events-auto bg-[#0b1221]/95 backdrop-blur-xl rounded-2xl border border-cyan-500/40 shadow-[0_0_30px_rgba(34,211,238,0.15)] px-4 py-3 max-w-[280px]">
+          <div className="pointer-events-auto absolute left-1/2 top-[194px] w-[min(280px,calc(100vw-32px))] -translate-x-1/2 rounded-2xl border border-cyan-500/40 bg-[#0b1221]/95 px-4 py-3 shadow-[0_0_30px_rgba(34,211,238,0.15)] backdrop-blur-xl">
             <div className="flex items-center gap-2 text-cyan-400 font-bold uppercase tracking-wider text-xs">
               <Navigation size={14} />
               Ruta activa
@@ -315,12 +315,6 @@ const MapArea = ({
           </div>
         )}
 
-        <div className="absolute bottom-2 right-4 pointer-events-auto">
-          <div />
-          <div className="text-gray-500 text-xs">
-            <a href="https://www.esri.com/en-us/legal/terms/full-master-agreement" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">Esri</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">OpenStreetMap</a>
-          </div>
-        </div>
       </div>
     </div>
   );

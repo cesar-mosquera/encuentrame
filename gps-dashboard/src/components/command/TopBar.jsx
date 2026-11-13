@@ -57,7 +57,7 @@ const TopBar = ({ category, onCategoryChange, stats, alertsCount, onMenuClick, o
           <button
             type="button"
             onClick={onMenuClick}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-cyan-500/20 bg-slate-900/60 text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.1)] backdrop-blur-md lg:hidden"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-cyan-500/20 bg-slate-900/60 text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.1)] backdrop-blur-md xl:hidden"
             aria-label="Abrir panel de flota"
           >
             <Radar size={16} />

@@ -1386,9 +1386,10 @@ body:has(.leaflet-zoom-anim) [class*='backdrop-blur'] {
   font-family: 'Inter', system-ui, sans-serif !important;
 }
 .cmd-center .leaflet-control-attribution {
-  background: rgba(5, 8, 17, 0.75) !important;
-  color: #334155 !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #475569 !important;
   font-size: 9px !important;
+  border-radius: 4px 0 0 0;
 }
 .cmd-center .leaflet-control-attribution a {
   color: #0e7490 !important;
@@ -1402,18 +1403,24 @@ body:has(.leaflet-zoom-anim) [class*='backdrop-blur'] {
   border-radius: 16px;
 }
 
-/* Toast reutilizado por el dashboard (arriba de la barra inferior) */
+/* Toast reutilizado por el dashboard: centrado sobre la barra inferior,
+   por encima de las tarjetas laterales para no taparlas. */
 .dashboard-toast {
-  bottom: 136px;
+  right: auto;
+  left: 50%;
+  bottom: 156px;
+  max-width: min(360px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  text-align: center;
   z-index: 90;
 }
 
 @media (max-width: 1023px) {
   .dashboard-toast {
-    right: 12px;
-    left: 12px;
-    max-width: none;
-    bottom: 148px;
+    right: auto;
+    left: 50%;
+    max-width: calc(100vw - 32px);
+    bottom: 156px;
     z-index: 99;
   }
 }

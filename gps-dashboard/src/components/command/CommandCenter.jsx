@@ -289,7 +289,7 @@ const CommandCenter = () => {
         onCategoryChange={handleCategoryChange}
         stats={stats}
         alertsCount={(alerts || []).filter((a) => a.status !== 'resolved').length}
-        onMenuClick={() => setFleetOpen(true)}
+        onMenuClick={() => { setDetailOpen(false); setFleetOpen(true) }}
         onLogout={signOut}
         lastSyncLabel={lastSyncLabel}
       />
@@ -315,40 +315,43 @@ const CommandCenter = () => {
 
       {/* Panel izquierdo - Detalle (condicional render) */}
       {(isDesktop || (detailOpen && active)) && (
-        <div className={`pointer-events-none absolute ${isDesktop ? 'left-4 top-[150px] bottom-36 xl:block hidden' : 'inset-x-0 top-[150px] bottom-36 mx-auto w-[94%] max-w-md'} z-[45]`}>
-          <div className="pointer-events-auto max-h-full overflow-y-auto cmd-scroll">
-            <div className={!isDesktop ? "relative rounded-2xl border border-cyan-500/25 bg-slate-900/90 p-3 shadow-[0_0_30px_rgba(6,182,212,0.25)] backdrop-blur-md" : ""}>
-              {!isDesktop && (
-                <button
-                  type="button"
-                  onClick={() => setDetailOpen(false)}
-                  className="absolute -top-2.5 right-3 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-cyan-500/30 bg-slate-900 text-cyan-300 shadow-lg transition-all hover:bg-cyan-500/10"
-                >
-                  <span className="text-[13px] font-bold leading-none">×</span>
-                </button>
-              )}
-              <DetailPanel
-                entity={active}
-                category={category}
-                onToggleRouteFollow={handleToggleRouteFollow}
-                isFollowingRoute={isFollowingRoute}
-                onShareRoute={handleShareRoute}
-                onDeleteEntity={handleDeleteEntity}
-                onEditVehicle={(e) => dispatch({ type: 'SET_ENTITY_TO_EDIT', payload: e })}
-                historyRoute={historyRoute}
-                historyLoading={historyLoading}
-                onFocusRoute={handleFocusRoute}
-              />
-            </div>
+        <div className={`pointer-events-none absolute ${isDesktop ? 'left-4 top-[194px] bottom-36 hidden xl:block' : 'inset-x-0 top-[150px] bottom-36 mx-auto w-[94%] max-w-md'} z-[45]`}>
+          <div className="pointer-events-auto h-full">
+            <DetailPanel
+              entity={active}
+              category={category}
+              onToggleRouteFollow={handleToggleRouteFollow}
+              isFollowingRoute={isFollowingRoute}
+              onShareRoute={handleShareRoute}
+              onDeleteEntity={handleDeleteEntity}
+              onEditVehicle={(e) => dispatch({ type: 'SET_ENTITY_TO_EDIT', payload: e })}
+              historyRoute={historyRoute}
+              historyLoading={historyLoading}
+              onFocusRoute={handleFocusRoute}
+              onClose={!isDesktop ? () => setDetailOpen(false) : undefined}
+            />
           </div>
         </div>
       )}
 
       {/* Panel derecho - Flota (condicional render) */}
       {(isDesktop || fleetOpen) && (
-        <div className={`pointer-events-none absolute ${isDesktop ? 'right-4 top-[150px] bottom-36 hidden lg:block' : 'inset-0 z-50 lg:hidden'} z-20`}>
+        <div className={`pointer-events-none absolute ${isDesktop ? 'right-4 top-[194px] bottom-36 hidden xl:block' : 'inset-0 z-50 xl:hidden'} z-20`}>
           {!isDesktop && <button type="button" className="pointer-events-auto absolute inset-0 bg-black/60" aria-label="Cerrar panel de flota" onClick={() => setFleetOpen(false)} />}
           <div className={`pointer-events-auto cmd-scroll ${!isDesktop ? 'absolute inset-x-0 bottom-0 max-h-[82dvh] overflow-y-auto p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]' : 'max-h-full overflow-y-auto'}`}>
+            {!isDesktop && (
+              <div className="mb-1 flex items-center justify-between px-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">Flota</span>
+                <button
+                  type="button"
+                  onClick={() => setFleetOpen(false)}
+                  aria-label="Cerrar panel de flota"
+                  className="flex h-7 w-7 items-center justify-center rounded-full border border-cyan-500/25 bg-slate-900/80 text-[15px] leading-none text-cyan-300 transition-colors hover:bg-cyan-500/10"
+                >
+                  ×
+                </button>
+              </div>
+            )}
             <FleetPanel
               entities={combined}
               selectedId={active?.id}
@@ -356,10 +359,10 @@ const CommandCenter = () => {
               onDeleteEntity={handleDeleteEntity}
               onResetDemos={simulated.resetDemos}
               userLocation={userLocation}
-              onLocateUser={() => dispatch({ type: 'SET_LOCATE_USER_TRIGGER', payload: { timestamp: Date.now(), coords: userLocation?.position } })}
-              onSetGeofence={() => { dispatch({ type: 'SET_PLACING_ON_MAP', payload: true }); dispatch({ type: 'SET_PENDING_CENTER', payload: null }); }}
+              onLocateUser={() => { setFleetOpen(false); dispatch({ type: 'SET_LOCATE_USER_TRIGGER', payload: { timestamp: Date.now(), coords: userLocation?.position } }); }}
+              onSetGeofence={() => { setFleetOpen(false); setDetailOpen(false); dispatch({ type: 'SET_PLACING_ON_MAP', payload: true }); dispatch({ type: 'SET_PENDING_CENTER', payload: null }); }}
               alerts={alerts}
-              onSelectAlert={handleSelectAlert}
+              onSelectAlert={(alert) => { setFleetOpen(false); handleSelectAlert(alert); }}
               isLoading={fleetLoading}
             />
           </div>
