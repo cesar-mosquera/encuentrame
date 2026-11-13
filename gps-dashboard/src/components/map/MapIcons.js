@@ -28,8 +28,8 @@ export const escapeHtml = (str) => {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 };
 
-export const createHeroPinIcon = (name, id, baseLayer = 'satellite') => {
-  const isDark = baseLayer === 'satellite' || baseLayer === 'dark';
+export const createHeroPinIcon = (name, id, baseLayer = 'streets') => {
+  const isDark = baseLayer === 'satellite';
   const primary = isDark ? '#00E676' : '#EF4444'; // Green on dark, Red on light
   const secondary = isDark ? '#00B4D8' : '#DC2626';
   const tertiary = isDark ? '#0096C9' : '#991B1B';
@@ -88,8 +88,8 @@ export const createHeroPinIcon = (name, id, baseLayer = 'satellite') => {
 }));
 };
 
-export const createFleetPinIcon = (status, baseLayer = 'satellite') => {
-  const isDark = baseLayer === 'satellite' || baseLayer === 'dark';
+export const createFleetPinIcon = (status, baseLayer = 'streets') => {
+  const isDark = baseLayer === 'satellite';
   
   // High contrast palette depending on map brightness
   let color;

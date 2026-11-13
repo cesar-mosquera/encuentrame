@@ -13,7 +13,7 @@ const LAYERS = [
 const BottomBar = ({ entity, onToggleRouteFollow, isFollowingRoute, baseLayer, onBaseLayerChange, onShowDetail }) => {
   const toggleLayer = (layerId) => {
     if (layerId === 'satellite') {
-      onBaseLayerChange(baseLayer === 'satellite' ? 'dark' : 'satellite')
+      onBaseLayerChange(baseLayer === 'satellite' ? 'streets' : 'satellite')
     }
   }
 

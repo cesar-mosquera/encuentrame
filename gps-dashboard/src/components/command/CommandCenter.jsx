@@ -33,7 +33,7 @@ const CommandCenter = () => {
   const { category, selectedEntity, flyToTrigger, isPlacingOnMap, pendingCenter, pendingGeofenceConfirm, userLocation, locateUserTrigger, isFollowingRoute, origin, alertFocusTrigger, routeFocusTrigger } = state;
   const { vehiclesList, devicesList, alerts, geofences, activeNetworkError, fleetLoading, vehiclesStale, devicesStale, vehiclesSyncTime, devicesSyncTime, hideEphemeral, refetchVehicles, refetchDevices, signOut } = data;
 
-  const [baseLayer, setBaseLayer] = useState('dark')
+  const [baseLayer, setBaseLayer] = useState('streets')
   const [fleetOpen, setFleetOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
   const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1280 : true)

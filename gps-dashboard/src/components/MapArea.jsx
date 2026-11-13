@@ -43,7 +43,7 @@ const MapArea = ({
 }) => {
   const mapRef = useRef(null);
   const alertMarkerRefs = useRef({});
-  const [internalBaseLayer, setInternalBaseLayer] = useState('dark');
+  const [internalBaseLayer, setInternalBaseLayer] = useState('streets');
   const [navState, setNavState] = useState({ navRoute: [], navMeta: null, navError: false });
   const baseLayer = baseLayerProp ?? internalBaseLayer;
   
@@ -88,13 +88,13 @@ const MapArea = ({
     : [];
 
   return (
-    <div className="relative h-full min-h-0 min-w-0 w-full overflow-hidden rounded-[10px] bg-[#162126] select-none">
+    <div className="relative h-full min-h-0 min-w-0 w-full overflow-hidden rounded-[10px] bg-[#e8ecef] select-none">
       <MapContainer 
         ref={mapRef}
         center={currentPinPosition} 
         zoom={15} 
         zoomControl={false}
-        className={baseLayer === 'dark' ? 'w-full h-full z-0 cyber-tiles dark-mode' : 'w-full h-full z-0 cyber-tiles'}
+        className="w-full h-full z-0 cyber-tiles"
         style={{ height: '100%', width: '100%' }}
       >
         <MapController />
@@ -112,16 +112,18 @@ const MapArea = ({
         <TileLayer
           url={baseLayer === 'satellite'
             ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-            : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'}
+            : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}'}
           subdomains={[]}
           attribution={baseLayer === 'satellite'
             ? '&copy; Esri, Maxar, Earthstar Geographics'
-            : '&copy; OpenStreetMap contributors'}
-          maxZoom={21}
-          maxNativeZoom={20}
-          keepBuffer={6}
+            : '&copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors'}
+          maxZoom={19}
+          maxNativeZoom={19}
+          keepBuffer={8}
           updateWhenIdle={false}
           updateWhenZooming={true}
+          zoomAnimation={true}
+          fadeAnimation={true}
         />
 
         <MapClickHandler isPlacingOnMap={isPlacingOnMap} onMapClick={onMapClick} onMapHover={onMapHover} />
@@ -241,7 +243,7 @@ const MapArea = ({
             <div className="bg-[#0b1221]/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden">
               <button onClick={handleRecenter} title="Centrar vehículo activo" className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-cyan-400 hover:bg-white/10 transition-colors border-b border-white/10 active:bg-white/20"><Crosshair size={20} /></button>
               <button onClick={handleFitFleet} title="Ver toda la flota" className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-cyan-400 hover:bg-white/10 transition-colors border-b border-white/10 active:bg-white/20"><Maximize size={20} /></button>
-              <button onClick={() => changeBaseLayer(baseLayer === 'dark' ? 'satellite' : 'dark')} title="Cambiar capa del mapa" className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-cyan-400 hover:bg-white/10 transition-colors active:bg-white/20"><Layers size={20} /></button>
+              <button onClick={() => changeBaseLayer(baseLayer === 'satellite' ? 'streets' : 'satellite')} title="Cambiar capa del mapa" className="w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-cyan-400 hover:bg-white/10 transition-colors active:bg-white/20"><Layers size={20} /></button>
             </div>
           </div>
         )}
@@ -269,7 +271,7 @@ const MapArea = ({
         <div className="absolute bottom-2 right-4 pointer-events-auto">
           <div />
           <div className="text-gray-500 text-xs">
-            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">OpenStreetMap</a>
+            <a href="https://www.esri.com/en-us/legal/terms/full-master-agreement" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">Esri</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">OpenStreetMap</a>
           </div>
         </div>
       </div>

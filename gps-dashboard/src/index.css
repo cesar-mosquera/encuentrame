@@ -147,20 +147,23 @@
   box-shadow: 0 0 6px rgba(34,211,238,0.8);
 }
 
-/* Midnight green GIS filter for map tiles */
+/* Tiles del mapa: sin filtros y con fade suave para que el zoom no parpadee. */
 .cyber-tiles .leaflet-tile {
-  opacity: 1 !important;
   filter: none !important;
-  /* GPU glitch fix for zooming (black flicker) */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
 }
 
-/* El mapa base usará sus colores originales para máxima claridad y lectura de las calles. */
-.cyber-tiles.dark-mode .leaflet-tile-pane {
-  filter: invert(0.92) hue-rotate(180deg) brightness(0.85) contrast(1.1) !important;
+/* Fade nativo de Leaflet (se desactiva si forzamos opacity en .leaflet-tile). */
+.cyber-tiles .leaflet-tile {
+  transition: opacity 200ms linear;
 }
+
+.cyber-tiles.leaflet-container {
+  background: #e8ecef;
+}
+
+/* El mapa base usa sus colores originales (estilo claro) para máxima claridad y lectura de las calles. */
 
 .header-status,
 .header-signal-actions {
